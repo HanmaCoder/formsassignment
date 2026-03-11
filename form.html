@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0a0a;
+      --surface: #1a0f0f;
+      --border: #2f1a1a;
+      --border-focus: #ff5e5e;
+      --accent: #ff5e5e;
+      --accent2: #ff9a5e;
+      --text: #f0e8e8;
+      --muted: #75505a;
+      --error: #ff3a3a;
+      --ok: #ff7a5e;
+      --warn: #ffd15e;
+      --radius: 10px;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Syne', sans-serif;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,94,94,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,94,94,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255,94,94,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      padding: 48px 40px 40px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,94,94,0.04);
+      animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(255,94,94,0.08);
+      border: 1px solid rgba(255,94,94,0.2);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      font-weight: 400;
+    }
+
+    .field {
+      margin-bottom: 20px;
+      animation: fieldIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .field:nth-child(1) { animation-delay: 0.1s; }
+    .field:nth-child(2) { animation-delay: 0.15s; }
+    .field:nth-child(3) { animation-delay: 0.2s; }
+    .field:nth-child(4) { animation-delay: 0.25s; }
+
+    @keyframes fieldIn {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      transition: color 0.2s;
+    }
+
+    .field:focus-within label { color: var(--accent); }
+
+    .label-hint {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      padding: 13px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(255,94,94,0.1);
+      background: #0d0f14;
+    }
+
+    input.valid   { border-color: var(--ok); }
+    input.invalid { border-color: var(--error); }
+    input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,94,122,0.12); }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--accent); }
+    .toggle-pw svg { width: 18px; height: 18px; }
+
+    input[type="password"],
+    input[type="text"].pw-input {
+      padding-right: 44px;
+    }
+
+    .msg {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      margin-top: 7px;
+      min-height: 16px;
+      transition: opacity 0.2s;
+    }
+    .msg.ok    { color: var(--ok); }
+    .msg.err   { color: var(--error); }
+    .msg.empty { opacity: 0; }
+
+    .msg::before {
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    .msg.ok::before  { content: '✓'; }
+    .msg.err::before { content: '✗'; }
+
+    /* Password strength */
+    .strength-wrap {
+      margin-top: 10px;
+    }
+
+    .strength-bars {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .bar {
+      flex: 1;
+      height: 3px;
+      border-radius: 100px;
+      background: var(--border);
+      transition: background 0.3s, transform 0.2s;
+    }
+    .bar.active-1 { background: var(--error); transform: scaleY(1.5); }
+    .bar.active-2 { background: #ff8c5e; transform: scaleY(1.5); }
+    .bar.active-3 { background: var(--warn); transform: scaleY(1.5); }
+    .bar.active-4 { background: #ff9a5e; transform: scaleY(1.5); }
+    .bar.active-5 { background: var(--ok); transform: scaleY(1.5); }
+
+    .strength-label {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+    }
+    .strength-label span { font-weight: 500; }
+    .s0 span { color: var(--muted); }
+    .s1 span { color: var(--error); }
+    .s2 span { color: #ff8c5e; }
+    .s3 span { color: var(--warn); }
+    .s4 span { color: #ff9a5e; }
+    .s5 span { color: var(--ok); }
+
+    .strength-reqs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 12px;
+      margin-top: 8px;
+    }
+    .req {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s;
+    }
+    .req.met { color: var(--ok); }
+    .req-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+
+    /* Submit */
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--accent);
+      color: #0b0c10;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(255,94,94,0.3);
+    }
+    .btn:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.15);
+      transform: scale(0);
+      animation: ripple 0.5s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 12px 24px;
+      border-radius: 100px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      z-index: 999;
+      transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Submissions log */
+    .log-section {
+      margin-top: 32px;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .log-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .log-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: rgba(255,94,94,0.08);
+      border: 1px solid rgba(255,94,94,0.15);
+      padding: 2px 10px;
+      border-radius: 100px;
+    }
+
+    .log-clear {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .log-clear:hover { border-color: var(--error); color: var(--error); }
+
+    .log-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 20px 0;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .log-items { display: flex; flex-direction: column; gap: 8px; }
+
+    .log-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      animation: itemIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes itemIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .log-item-name { font-weight: 500; color: var(--text); margin-bottom: 2px; }
+    .log-item-meta { color: var(--muted); font-size: 11px; }
+    .log-item-time { color: var(--muted); font-size: 10px; margin-top: 4px; opacity: 0.6; }
+
+    @media (max-width: 520px) {
+      .card { padding: 32px 24px 28px; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="badge">✦ New Account</div>
+  <h1>Create your<br /><span>profile.</span></h1>
+  <p class="subtitle">All fields validated in real-time.</p>
+
+  <form id="regForm" novalidate autocomplete="off">
+    <!-- Full Name -->
+    <div class="field">
+      <label for="name">Full Name</label>
+      <div class="input-wrap">
+        <input type="text" id="name" placeholder="hardik singh" autocomplete="name" />
+      </div>
+      <div class="msg empty" id="nameMsg"></div>
+    </div>
+
+    <!-- Email -->
+    <div class="field">
+      <label for="email">Email Address</label>
+      <div class="input-wrap">
+        <input type="email" id="email" placeholder="hardik@example.com" autocomplete="email" />
+      </div>
+      <div class="msg empty" id="emailMsg"></div>
+    </div>
+
+    <!-- Phone -->
+    <div class="field">
+      <label for="phone">Phone Number</label>
+      <div class="input-wrap">
+        <input type="tel" id="phone" placeholder="+91 000 000-0000" autocomplete="tel" maxlength="18" />
+      </div>
+      <div class="msg empty" id="phoneMsg"></div>
+    </div>
+
+    <!-- Password -->
+    <div class="field">
+      <label for="password">
+        Password
+        <span class="label-hint" id="strengthTag"></span>
+      </label>
+      <div class="input-wrap">
+        <input type="password" id="password" class="pw-input" placeholder="Min. 8 characters" autocomplete="new-password" />
+        <button type="button" class="toggle-pw" id="togglePw" aria-label="Show/hide password">
+          <!-- Eye icon -->
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="strength-wrap" id="strengthWrap" style="display:none">
+        <div class="strength-bars">
+          <div class="bar" id="b1"></div>
+          <div class="bar" id="b2"></div>
+          <div class="bar" id="b3"></div>
+          <div class="bar" id="b4"></div>
+          <div class="bar" id="b5"></div>
+        </div>
+        <div class="strength-label s0" id="strengthLabel">Strength: <span id="strengthText">—</span></div>
+        <div class="strength-reqs">
+          <div class="req" id="req-len"><span class="req-dot"></span>8+ characters</div>
+          <div class="req" id="req-upper"><span class="req-dot"></span>Uppercase</div>
+          <div class="req" id="req-lower"><span class="req-dot"></span>Lowercase</div>
+          <div class="req" id="req-num"><span class="req-dot"></span>Number</div>
+          <div class="req" id="req-sym"><span class="req-dot"></span>Symbol</div>
+        </div>
+      </div>
+      <div class="msg empty" id="pwMsg"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button type="submit" class="btn" id="submitBtn" disabled>Create Account →</button>
+  </form>
+
+  <!-- Submissions Log -->
+  <div class="log-section" id="logSection">
+    <div class="log-header">
+      <span class="log-title">Submissions</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="log-count" id="logCount">0</span>
+        <button class="log-clear" id="clearBtn">Clear</button>
+      </div>
+    </div>
+    <div id="logList"><div class="log-empty">No submissions yet.</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Registration successful!</div>
+
+<script>
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const nameInput  = $('name');
+  const emailInput = $('email');
+  const phoneInput = $('phone');
+  const pwInput    = $('password');
+  const submitBtn  = $('submitBtn');
+  const toast      = $('toast');
+
+  const setMsg = (id, type, text) => {
+    const el = $(id);
+    el.className = `msg ${type}`;
+    el.textContent = text;
+  };
+
+  const markField = (input, state) => {
+    input.classList.remove('valid','invalid');
+    if (state === true)  input.classList.add('valid');
+    if (state === false) input.classList.add('invalid');
+  };
+
+  // ─── Validation state ─────────────────────────────────────────────────────
+  const valid = { name: false, email: false, phone: false, pw: false };
+
+  const checkAll = () => {
+    submitBtn.disabled = !Object.values(valid).every(Boolean);
+  };
+
+  // ─── Name ─────────────────────────────────────────────────────────────────
+  nameInput.addEventListener('input', () => {
+    const v = nameInput.value.trim();
+    if (!v) {
+      markField(nameInput, null); setMsg('nameMsg','empty',''); valid.name = false;
+    } else if (v.length < 2) {
+      markField(nameInput, false); setMsg('nameMsg','err','Too short'); valid.name = false;
+    } else if (!/^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$/.test(v)) {
+      markField(nameInput, false); setMsg('nameMsg','err','Letters only'); valid.name = false;
+    } else {
+      markField(nameInput, true); setMsg('nameMsg','ok','Looks good'); valid.name = true;
+    }
+    checkAll();
+  });
+
+  // ─── Email ────────────────────────────────────────────────────────────────
+  emailInput.addEventListener('input', () => {
+    const v = emailInput.value.trim();
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!v) {
+      markField(emailInput, null); setMsg('emailMsg','empty',''); valid.email = false;
+    } else if (!re.test(v)) {
+      markField(emailInput, false); setMsg('emailMsg','err','Invalid email'); valid.email = false;
+    } else {
+      markField(emailInput, true); setMsg('emailMsg','ok','Valid email'); valid.email = true;
+    }
+    checkAll();
+  });
+
+  // ─── Phone ────────────────────────────────────────────────────────────────
+  phoneInput.addEventListener('input', e => {
+    let raw = phoneInput.value.replace(/\D/g,'');
+    // Auto-format: +1 (XXX) XXX-XXXX
+    let fmt = '';
+    if (raw.length === 0) { fmt = ''; }
+    else if (raw.length <= 3)  { fmt = raw; }
+    else if (raw.length <= 6)  { fmt = `(${raw.slice(0,3)}) ${raw.slice(3)}`; }
+    else if (raw.length <= 10) { fmt = `(${raw.slice(0,3)}) ${raw.slice(3,6)}-${raw.slice(6)}`; }
+    else { raw = raw.slice(0,11); fmt = `+${raw[0]} (${raw.slice(1,4)}) ${raw.slice(4,7)}-${raw.slice(7,11)}`; }
+
+    phoneInput.value = fmt;
+    const digits = raw.replace(/\D/g,'');
+
+    if (!fmt) {
+      markField(phoneInput, null); setMsg('phoneMsg','empty',''); valid.phone = false;
+    } else if (digits.length < 10) {
+      markField(phoneInput, false); setMsg('phoneMsg','err','Too short'); valid.phone = false;
+    } else {
+      markField(phoneInput, true); setMsg('phoneMsg','ok','Valid number'); valid.phone = true;
+    }
+    checkAll();
+  });
+
+  // ─── Password ─────────────────────────────────────────────────────────────
+  const LABELS = ['','Weak','Fair','Moderate','Strong','Excellent'];
+  const CLASSES = ['s0','s1','s2','s3','s4','s5'];
+
+  pwInput.addEventListener('input', () => {
+    const v = pwInput.value;
+    const sw = $('strengthWrap');
+
+    if (!v) {
+      sw.style.display = 'none';
+      markField(pwInput, null); setMsg('pwMsg','empty',''); valid.pw = false;
+      checkAll(); return;
+    }
+
+    sw.style.display = 'block';
+
+    const reqs = {
+      len:   v.length >= 8,
+      upper: /[A-Z]/.test(v),
+      lower: /[a-z]/.test(v),
+      num:   /\d/.test(v),
+      sym:   /[^A-Za-z0-9]/.test(v)
+    };
+
+    Object.entries(reqs).forEach(([k,met]) => {
+      const el = $(`req-${k}`);
+      if (el) el.classList.toggle('met', met);
+    });
+
+    const score = Object.values(reqs).filter(Boolean).length;
+
+    // Bars
+    for (let i=1;i<=5;i++) {
+      const b = $(`b${i}`);
+      b.className = 'bar' + (i <= score ? ` active-${score}` : '');
+    }
+
+    // Label
+    const sl = $('strengthLabel');
+    sl.className = `strength-label ${CLASSES[score]}`;
+    $('strengthText').textContent = LABELS[score];
+    $('strengthTag').textContent  = score >= 3 ? LABELS[score] : '';
+    $('strengthTag').style.color  = score >= 4 ? 'var(--ok)' : score === 3 ? 'var(--warn)' : 'var(--error)';
+
+    if (score < 2) {
+      markField(pwInput, false); setMsg('pwMsg','err','Too weak'); valid.pw = false;
+    } else if (score < 3) {
+      markField(pwInput, null); setMsg('pwMsg','empty',''); valid.pw = false;
+    } else {
+      markField(pwInput, true); setMsg('pwMsg','ok','Strong enough'); valid.pw = true;
+    }
+    checkAll();
+  });
+
+  // ─── Toggle password ──────────────────────────────────────────────────────
+  $('togglePw').addEventListener('click', () => {
+    const isHidden = pwInput.type === 'password';
+    pwInput.type = isHidden ? 'text' : 'password';
+    $('eyeIcon').innerHTML = isHidden
+      ? `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  });
+
+  // ─── LocalStorage log ─────────────────────────────────────────────────────
+  const STORE_KEY = 'registrations';
+
+  const getSubmissions = () => {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+    catch { return []; }
+  };
+
+  const saveSubmission = entry => {
+    const arr = getSubmissions();
+    arr.unshift(entry);
+    localStorage.setItem(STORE_KEY, JSON.stringify(arr));
+  };
+
+  const renderLog = () => {
+    const arr = getSubmissions();
+    const list = $('logList');
+    const count = $('logCount');
+    count.textContent = arr.length;
+
+    if (!arr.length) {
+      list.innerHTML = '<div class="log-empty">No submissions yet.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    arr.slice(0, 10).forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.innerHTML = `
+        <div class="log-item-name">${s.name}</div>
+        <div class="log-item-meta">${s.email} · ${s.phone}</div>
+        <div class="log-item-time">${s.timestamp}</div>
+      `;
+      list.appendChild(item);
+    });
+    if (arr.length > 10) {
+      const more = document.createElement('div');
+      more.className = 'log-empty';
+      more.textContent = `+${arr.length - 10} more in localStorage`;
+      list.appendChild(more);
+    }
+  };
+
+  // ─── Clear ────────────────────────────────────────────────────────────────
+  $('clearBtn').addEventListener('click', () => {
+    if (confirm('Clear all submissions?')) {
+      localStorage.removeItem(STORE_KEY);
+      renderLog();
+    }
+  });
+
+  // ─── Submit ───────────────────────────────────────────────────────────────
+  $('regForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    // Ripple
+    const btn = submitBtn;
+    const rect = btn.getBoundingClientRect();
+    const rip = document.createElement('span');
+    rip.className = 'ripple';
+    const size = Math.max(rect.width, rect.height);
+    rip.style.cssText = `width:${size}px;height:${size}px;left:${rect.width/2 - size/2}px;top:${rect.height/2 - size/2}px`;
+    btn.appendChild(rip);
+    setTimeout(() => rip.remove(), 600);
+
+    const entry = {
+      name: nameInput.value.trim(),
+      email: emailInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      timestamp: new Date().toLocaleString()
+    };
+
+    saveSubmission(entry);
+    renderLog();
+
+    // Reset form
+    ['name','email','phone','password'].forEach(id => {
+      const el = $(id);
+      el.value = '';
+      el.classList.remove('valid','invalid');
+    });
+    ['nameMsg','emailMsg','phoneMsg','pwMsg'].forEach(id => setMsg(id,'empty',''));
+    $('strengthWrap').style.display = 'none';
+    $('strengthTag').textContent = '';
+    Object.keys(valid).forEach(k => valid[k] = false);
+    submitBtn.disabled = true;
+    pwInput.type = 'password';
+
+    // Toast
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  });
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  renderLog();
+</script>
+</body>
+</html>
